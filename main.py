@@ -1,11 +1,10 @@
 from ast import Return
 from multiprocessing.connection import Client
 import os.path
-import json
 import nextcord 
 from nextcord.ext import commands
 from nextcord.utils import get
-import config.json
+from nextcord.ext import menus
 
 #bot start-up
 intents = nextcord.Intents.all()
@@ -134,8 +133,8 @@ async def on_member_ban(guild,user):
     await channel.send(embed=embed)
 
 with open('token.txt') as f:
-    TOKEN = f.readline()
+    TOKEN = f.read()
 
 
-client.run('TOKEN')
+client.run(TOKEN)
 
