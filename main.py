@@ -104,9 +104,9 @@ async def kick(ctx, member : nextcord.Member, *, reason = None ):
     await ctx.member.kick(reason = reason)
     await ctx.send(f'{member} has been kicked')
     channel = nextcord.utils.get(ctx.guild.channels, name="mod_logs")
-    ban_msg = (f"{member} was kicked for {reason} by {auth}")
-    embed=nextcord.Embed(title="Beepu Moderation", description= f"{member} was banned for {reason} by {auth}", color=0xF0FFFF)
-    await ctx.channel.send(embed=embed)
+    
+    embed=nextcord.Embed(title="Beepu Moderation", description= f"{member} was kicked for {reason} by {auth}", color=0xF0FFFF)
+    await channel.send(embed=embed)
 
 #lock command 
 
