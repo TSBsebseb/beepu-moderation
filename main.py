@@ -136,10 +136,6 @@ with open('token.txt') as f:
     TOKEN = f.read()
 
 
-<<<<<<< HEAD
-
-client.run('token')
-=======
 client.run(TOKEN)
->>>>>>> cda1c0f66b5b618fb3247b2b49c5530d3b367e30
+
 
