@@ -136,5 +136,5 @@ async def on_member_ban(guild,user):
 
 
 
-client.run('OTIzMjI1MjM0MTU1MzcyNTU1.YcM6gA.Zb0sv_VLF07snwlnQYpM1SWVc8A')
+client.run('token')
 
