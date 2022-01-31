@@ -1,5 +1,3 @@
-from ast import Return
-from multiprocessing.connection import Client
 import os.path
 import nextcord 
 from nextcord.ext import commands
@@ -23,7 +21,7 @@ async def on_ready():
 @client.command(name = 'setup', help= 'sets up bot and blacklist channels')
 async def make_chan(ctx):
   user = ctx.message.author
-  
+  server = ctx.message.guild
 
   if ctx.guild.owner_id != user.id:
     await ctx.send('you are not the owner')
@@ -35,23 +33,33 @@ async def make_chan(ctx):
       if str(channel.type) == 'text':
 
         Chan_name.append(channel.name)
-        
-        await ctx.send('Creating beepu_logs')
-        if "beepu_logs" not in Chan_name:
-            await ctx.message.guild.create_text_channel("beepu_logs")
-        else:
-            await ctx.send('Blacklist logs already created ')
 
-        await ctx.send('Creating mod_logs')
-        if "mod_logs" not in Chan_name:
-            await ctx.message.guild.create_text_channel("mod_logs")
-        else:
-            await ctx.send('Broadcast alerts already created')
-        
+    role_name = []
+    for channel in ctx.guild.roles:
+      
+      role_name.append(channel.name)
+    print(role_name)  
+    await ctx.send('Creating beepu_logs')
+    if "beepu_logs" not in Chan_name:
+        await ctx.message.guild.create_text_channel("beepu_logs")
+    else:
+        await ctx.send('beepu logs already created ')
 
-        await ctx.send('Setup finished')
-        
-        return
+    await ctx.send('Creating mod_logs')
+    if "mod_logs" not in Chan_name:
+        await ctx.message.guild.create_text_channel("mod_logs")
+    else:
+        await ctx.send('mod logs already created')
+    await ctx.send('creating admin role')
+    if 'admin' not in role_name:
+     perms = nextcord.Permissions(administrator = True )
+     await ctx.message.guild.create_role(name='admin', permissions=perms)      
+    else:
+     await ctx.send('Admin role already created')
+    
+    await ctx.send('Setup finished')
+  Return 
+      
 
 
 '''@client.command(name = 'add_admin', help = 'adds one of your admin roles to unlock commands')
@@ -65,7 +73,7 @@ async def add(ctx, role):
     
 
 
-@client.command(name = 'ban', help = 'bans a member')
+@client.command(name = 'ban', aliases =['b'], help = 'bans a member')
 @commands.has_permissions(ban_members = True)
 async def ban(ctx, member : nextcord.Member, *, reason = None):
     auth =ctx.message.author
@@ -77,7 +85,7 @@ async def ban(ctx, member : nextcord.Member, *, reason = None):
     await ctx.channel.send(embed=embed)
 
 # unban
-@client.command(name ='unban', help = 'unbans a member ')
+@client.command(name ='unban',aliases = ['ub'], help = 'unbans a member ')
 @commands.has_permissions(administrator = True)
 async def unban(ctx, member : nextcord.member ):
     auth =ctx.message.author
@@ -98,22 +106,53 @@ async def unban(ctx, member : nextcord.member ):
             return
 
 # kick command 
-@client.command(name = 'kick' , help = 'kicks a member')
+@client.command(name = 'kick' ,aliases = ['k'], help = 'kicks a member')
+@commands.has_permissions(administrator = True)
 async def kick(ctx, member : nextcord.Member, *, reason = None ):
     auth =ctx.message.author
     await ctx.member.kick(reason = reason)
     await ctx.send(f'{member} has been kicked')
     channel = nextcord.utils.get(ctx.guild.channels, name="mod_logs")
-    
-    embed=nextcord.Embed(title="Beepu Moderation", description= f"{member} was kicked for {reason} by {auth}", color=0xF0FFFF)
-    await channel.send(embed=embed)
+    ban_msg = (f"{member} was kicked for {reason} by {auth}")
+    embed=nextcord.Embed(title="Beepu Moderation", description= f"{member} was banned for {reason} by {auth}", color=0xF0FFFF)
+    await ctx.channel.send(embed=embed)
 
 #lock command 
+@client.command(name = 'lockdown', alises = ['lock', 'ld','l'], help = 'locks a channel')
+@commands.has_permissions(administrator = True)
+async def lock(ctx, channel = None ):
+  auth = ctx.message.author
+  message = await ctx.guild.fetch_channel(channel)
+  
+  await ctx.message.channel.set_permissions(ctx.guild.default_role, read_messages=True,
+                                                send_messages=False)
+  await ctx.send(f'{message} has been locked by {auth}')
+  channel = nextcord.utils.get(ctx.guild.channels, name="mod_logs")
+  embed=nextcord.Embed(title="Beepu Moderation", description= f"{message} has been locked by {auth}", color=0xF0FFFF)
+  await ctx.channel.send(embed=embed)
+  
+# Unlock command 
+@client.command(name = 'unlock', aliases = ['un'], help = 'locks a channel')
+@commands.has_permissions(administrator = True)
+async def unlock(ctx, channel = None ):
+  auth = ctx.message.author
+  message = await ctx.guild.fetch_channel(channel)
+  
+  await ctx.message.channel.set_permissions(ctx.guild.default_role, read_messages = True,
+                                                send_messages = True)
+  await ctx.send(f'{message} has been unlocked')
 
-
-
-
-#purge command
+  channel = nextcord.utils.get(ctx.guild.channels, name="mod_logs")
+  embed=nextcord.Embed(title="Beepu Moderation", description= f"{message} has been unlocked by {auth}", color=0xF0FFFF)
+  await ctx.channel.send(embed=embed)
+  
+  
+  
+  
+  
+  
+  
+  #purge command
 
 
 
@@ -132,10 +171,15 @@ async def on_member_ban(guild,user):
     embed=nextcord.Embed(title="Beepu Moderation logs", description= f"{user} was banned", color=0xF0FFFF)
     await channel.send(embed=embed)
 
+
+
+# on member join
+'''@client.event
+async def on_member_join():
+  await add_roles(*roles, atomic=True)'''
+
+
 with open('token.txt') as f:
     TOKEN = f.read()
 
-
 client.run(TOKEN)
-
-
