@@ -1,11 +1,10 @@
 from ast import Return
 from multiprocessing.connection import Client
 import os.path
-import json
 import nextcord 
 from nextcord.ext import commands
 from nextcord.utils import get
-
+from nextcord.ext import menus
 
 #bot start-up
 intents = nextcord.Intents.all()
@@ -133,8 +132,14 @@ async def on_member_ban(guild,user):
     embed=nextcord.Embed(title="Beepu Moderation logs", description= f"{user} was banned", color=0xF0FFFF)
     await channel.send(embed=embed)
 
+with open('token.txt') as f:
+    TOKEN = f.read()
 
 
+<<<<<<< HEAD
 
 client.run('token')
+=======
+client.run(TOKEN)
+>>>>>>> cda1c0f66b5b618fb3247b2b49c5530d3b367e30
 
