@@ -58,7 +58,7 @@ async def make_chan(ctx):
      await ctx.send('Admin role already created')
     
     await ctx.send('Setup finished')
-  Return 
+  return 
       
 
 
@@ -118,11 +118,15 @@ async def kick(ctx, member : nextcord.Member, *, reason = None ):
     await ctx.channel.send(embed=embed)
 
 #lock command 
-@client.command(name = 'lockdown', alises = ['lock', 'ld','l'], help = 'locks a channel')
+@client.command(name = 'lockdown', aliases = ['lock', 'ld','l'], help = 'locks a channel')
 @commands.has_permissions(administrator = True)
 async def lock(ctx, channel = None ):
   auth = ctx.message.author
-  message = await ctx.guild.fetch_channel(channel)
+  server = ctx.message.guild
+  if channel is None :
+    message = ctx.message.guild.default_channel
+  else:
+    message = await ctx.guild.fetch_channel(channel)
   
   await ctx.message.channel.set_permissions(ctx.guild.default_role, read_messages=True,
                                                 send_messages=False)
@@ -136,7 +140,11 @@ async def lock(ctx, channel = None ):
 @commands.has_permissions(administrator = True)
 async def unlock(ctx, channel = None ):
   auth = ctx.message.author
-  message = await ctx.guild.fetch_channel(channel)
+  server = ctx.message.guild
+  if channel is None :
+    message = ctx.message.guild.default_channel
+  else:
+    message = await ctx.guild.fetch_channel(channel)
   
   await ctx.message.channel.set_permissions(ctx.guild.default_role, read_messages = True,
                                                 send_messages = True)
@@ -177,6 +185,16 @@ async def on_member_ban(guild,user):
 '''@client.event
 async def on_member_join():
   await add_roles(*roles, atomic=True)'''
+
+# on member kick
+@client.event
+async def on_member_kick(guild,user, reason ):
+    channel = nextcord.utils.get(guild.channels, name="beepu_logs")
+    embed=nextcord.Embed(title="Beepu Moderation logs", description= f"{user} was kicked for ", color=0xF0FFFF)
+    await channel.send(embed=embed)
+
+
+
 
 
 with open('token.txt') as f:
